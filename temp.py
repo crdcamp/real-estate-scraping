@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 def get_database_ppis():
     """Retrieve all PPIs from the database (layer 12) for comparison"""
@@ -53,7 +54,7 @@ def get_database_ppis():
         return {}
 
 def main():
-    num_results = 5
+    num_results = 10
     
     # Get database PPIs for comparison
     database_ppis = get_database_ppis()
@@ -175,25 +176,10 @@ def main():
 
 json_results = main()
 
-# Optional: Print the JSON structure for verification
-if json_results:
-    print(f"\n--- JSON RESULTS SAVED ---")
-    print(f"Number of records stored: {len(json_results)}")
-    # Uncomment the next line to see the full JSON structure:
-    # import json; print(json.dumps(json_results, indent=2))
+def scrape_json_results(results):
+    schedule_value = results[0]['Schedule ID Attributes']['Schedule']
 
-    schedule_value = json_results[0]['Schedule ID Attributes']['Schedule']
+    for attribute, schedule in schedule_value.items():
+        print(f"{attribute}: {schedule}")
 
-    # To loop through all records and access Schedule:
-    for record in json_results:
-        schedule = record['Schedule ID Attributes']['Schedule']
-
-    # To get all Schedule values as a list:
-        schedules = [record['Schedule ID Attributes']['Schedule'] for record in json_results]
-
-    for id in schedules:
-        all_scrape_urls = []
-        scrape_url = f'https://gis.summitcountyco.gov/map/DetailData.aspx?Schno={id}'
-        requests.get(scrape_url)
-        all_scrape_urls.append(scrape_url)
-        print(scrape_url)
+scrape_json_results(json_results)
